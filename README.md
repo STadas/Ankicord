@@ -7,10 +7,11 @@ So I decided to (hopefully) fix all the issues and improve the add-on overall as
 
 [![pypresence](https://img.shields.io/badge/using-pypresence-00bb88.svg?style=for-the-badge&logo=discord&logoWidth=20)](https://github.com/qwertyquerty/pypresence)
 
-If anyone has any problems with this being up, please contact me on Discord (`tadz#1030`) and we can discuss them.
+At the moment there is a sort-of-hidden feature of showing the current playing Spotify track as well in the Rich Presence.
+It should only work on Linux distros as it utilizes the `gdbus call` and `dbus-send` commands. I've only tested it on my own system (arch btw).
+I will probably add an easier way of enabling/disabling this feature soon™️.
+**For now, if you want to, you can uncomment/comment certain lines to enable it (I've included some instructions in the comments).**
 
-Moving on, at the moment there is a sort-of-hidden feature of showing the current playing Spotify track as well in the Rich Presence. However as far as I know it should only work on Linux distros as it utilizes the `gdbus call` and `dbus-send` commands. I've also only tested it on my own system (arch btw). I will probably add an easier way of enabling/disabling this feature soon™️ but for now, if you want to, you can uncomment/comment certain lines to enable it (I've included some instructions in the comments).
-
-Thanks for visiting, reading. Again, any feedback, `tadz#1030` for now.
+If anyone has any problems with this being up or just general feedback - `tadz#1030` on Discord.
 
 `This will be added to the official Anki 2.1 add-on section as well as the release section here soon™️`
