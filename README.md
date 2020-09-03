@@ -17,4 +17,5 @@ I will probably add an easier way of enabling/disabling this feature soon™️.
 If anyone has any problems with this being up or just general feedback - `tadz#1030` on Discord.
 
 Example appearance of add-on
+
 ![Example appearance of add-on](https://i.imgur.com/RWI7XD4.png)
