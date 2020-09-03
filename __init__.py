@@ -1,6 +1,6 @@
 """
 	Full disclosure: https://ankiweb.net/shared/info/1133851639 was used as a base.
-	I tried using it first but noticed several problems including the deprecated RPC library.
+	I tried using it myself at first but noticed several problems including the deprecated RPC library.
 	The main problem was that the addon/repository had not been updated to fix these issues for more than half a year.
 	So I decided to (hopefully) fix all the issues and improve the add-on overall as well as keep updating it if anything pops up
 """
