@@ -75,7 +75,7 @@ def update(detailsMessage):
 			# 	rpc.update(details=detailsMessage, state=dueMessage, large_image="anki", small_image="spotify", small_text=spotify_info, start=start_time)
 			# else:
 			# 	rpc.update(details=detailsMessage, state=dueMessage, large_image="anki", start=start_time)
-			rpc.update(details=detailsMessage, state=dueMessage, large_image="anki", start=start_time) #! [Spotify (LINUX ONLY)] 2. Comment this line if uncommenting the upper 5 lines
+			rpc.update(details=detailsMessage, state=dueMessage, large_image="anki", start=start_time) #! [Spotify (LINUX ONLY)] 2(last). Comment this line if uncommenting the upper 5 lines
 			curr_time = round(time.time()) # update timer to wait another 15 seconds before sending another update
 	except Exception as e:
 		connected = False
