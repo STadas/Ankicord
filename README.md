@@ -1,6 +1,6 @@
 # Ankicord
 
-An Anki add-on that utilizes the pypresence library and updates your Discord status (Rich Presence) to display your Anki activity.
+An Anki add-on that utilizes the pypresence library and updates your Discord status (Rich Presence) to display your Anki activity. [Add-on page](https://ankiweb.net/shared/info/1828536813)
 
 [![pypresence](https://img.shields.io/badge/using-pypresence-00bb88.svg?style=for-the-badge&logo=discord&logoWidth=20)](https://github.com/qwertyquerty/pypresence)
 
