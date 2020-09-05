@@ -13,4 +13,4 @@ If anyone has any problems with this being up or just general feedback - `tadz#1
 
 Example appearance of add-on
 
-![Example appearance of add-on](https://i.imgur.com/RWI7XD4.png)
+![Example appearance of add-on](https://i.imgur.com/31NOLTB.png)
