@@ -9,7 +9,7 @@ I tried using it myself at first but noticed several problems including the depr
 The main problem was that the add-on/repository had not been updated to fix these issues for more than half a year.
 So I decided to (hopefully) fix all the issues and improve the add-on overall as well as keep updating it if anything pops up
 
-If anyone has any problems with this being up or just general feedback - `tadz#1030` on Discord.
+If anyone has any problems with this being up or just general feedback, submit an issue here or let me know on the Ankiweb [add-on page](https://ankiweb.net/shared/info/1828536813).
 
 Example appearance of add-on
 
