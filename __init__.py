@@ -1,38 +1,43 @@
 """
 	Full disclosure: https://ankiweb.net/shared/info/1133851639 was used as a base.
 	I tried using it myself at first but noticed several problems including the deprecated RPC library.
-	The main problem was that the addon/repository had not been updated to fix these issues for more than half a year.
+	The main problem was that the add-on/repository had not been updated to fix these issues for more than half a year.
 	So I decided to (hopefully) fix all the issues and improve the add-on overall as well as keep updating it if anything pops up
 """
 
 from anki.hooks import addHook
 from aqt import mw
-import time, os
+import time, os, json
 from . import pypresence
+from aqt.utils import showInfo
 
 # Globals
 dueMessage = "   " # initial state value for Rich Presence as it doesn't allow an empty value like ""
 skipEdit = 0
 connected = False
 start_time = round(time.time()) # timer start for Rich Presence
-curr_time = start_time - 15 # timer for limiting Rich Presence requests
+curr_time = round(time.time()) - 15 # timer for limiting Rich Presence requests
 client_id = '745326655395856514' # the Discord developer application in use. You can change this if you want to use your own with your own assets (like icons, etc.)
 rpc = pypresence.presence.Presence(client_id) # init client class
 
-##### PRINTEXCEPTION: Prints exception with separators
-def printException(e):
-	print("--- EXCEPTION START ---")
-	print(e)
-	print("--- EXCEPTION END ---")
+# set config
+config = mw.addonManager.getConfig(__name__)['defaults']
+spotify_on = config['spotify'] == "on"
+card_count_on = config['card_count'] == "on"
+activity_on = config['activity'] == "on"
+timer_on = config['timer'] == "on"
+
+if not timer_on: #! config setting
+	start_time = None
 
 # attempt first connect
 try:
 	rpc.connect()
 	connected = True
 except Exception as e:
-	printException(e)
+	print(e)
 
-##### GETSPOTIFY: Gets currently active Spotify track info #! LINUX ONLY as far as I know
+##### GETSPOTIFY: Gets currently active Spotify track info #! LINUX ONLY
 def getSpotify():
 	try:
 		player_status_command = "gdbus call --session --dest org.mpris.MediaPlayer2.spotify --object-path /org/mpris/MediaPlayer2 --method org.freedesktop.DBus.Properties.Get org.mpris.MediaPlayer2.Player PlaybackStatus | cut -d \"'\" -f 2"
@@ -69,19 +74,24 @@ def update(detailsMessage):
 
 		# update Rich Presence
 		if round(time.time()) - 15 > curr_time:
-			#! [Spotify (LINUX ONLY)] 1. Uncomment the next 5 lines
-			# spotify_info = getSpotify()
-			# if spotify_info != "":
-			# 	rpc.update(details=detailsMessage, state=dueMessage, large_image="anki", small_image="spotify", small_text=spotify_info, start=start_time)
-			# else:
-			# 	rpc.update(details=detailsMessage, state=dueMessage, large_image="anki", start=start_time)
-			rpc.update(details=detailsMessage, state=dueMessage, large_image="anki", start=start_time) #! [Spotify (LINUX ONLY)] 2(last). Comment this line if uncommenting the upper 5 lines
+			#! Spotify (LINUX ONLY)
+			if spotify_on: #! config setting
+				spotify_info = getSpotify()
+				if spotify_info != "":
+					rpc.update(details=detailsMessage, state=dueMessage, large_image="anki", small_image="spotify", small_text=spotify_info, start=start_time)
+				else:
+					rpc.update(details=detailsMessage, state=dueMessage, large_image="anki", start=start_time)
+			else:
+				rpc.update(details=detailsMessage, state=dueMessage, large_image="anki", start=start_time)
 			curr_time = round(time.time()) # update timer to wait another 15 seconds before sending another update
 	except Exception as e:
 		connected = False
-		printException(e)
+		print(e)
 
-update("Slacking off")
+if activity_on: #! config setting
+	update("Slacking off")
+else:
+	update("   ")
 
 ##### DUETODAY: Calculates reviews due
 # Stored in global variable 'dueMessage'
@@ -109,17 +119,23 @@ def dueToday():
 # If opening browse, skips 'edit' hook
 def onState(state, oldState):
 	global skipEdit
-	dueToday()
+
+	if card_count_on: #! config setting
+		dueToday()
+
+	if not activity_on: #! config setting
+		update("   ")
+		return
 
 	# Check states:
 	if state == "deckBrowser":
 		update("Slacking off")
-	if state == "review":
+	elif state == "review":
 		update("Daily reviews")
-	if state == "browse":
+	elif state == "browse":
 		skipEdit = 1
 		update("Browsing decks")
-	if state == "edit":
+	elif state == "edit":
 		update("Adding cards")
 
 ##### Simulated states
