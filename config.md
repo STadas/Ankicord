@@ -7,7 +7,7 @@
 *(<card amount\> cards left)*
 
 **timer**: Display time elapsed after Anki has been launched<br/>
-*<time in hh:mm:ss or days\> elapsed*
+*<time in hh:mm:ss or days, etc.\> elapsed*
 
 **spotify**: [LINUX ONLY] Display Spotify icon (and track name when hovered over it) when something is playing.<br/>
 *[Example](https://i.imgur.com/IJba0Tj.png)*
