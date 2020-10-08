@@ -70,7 +70,7 @@ def applyConfig(conf_json):
 	no_cards_left_txt = str(status_conf['no_cards_left_txt'])
 
 try:
-	# try to use apply meta config
+	# try to use meta config
 	applyConfig(config)
 except:
 	# use defaults if failed
@@ -158,7 +158,7 @@ def dueToday():
 
 	# Correct for single or no cards
 	if dueCount == 0:
-		dueMessage = no_cards_left_txt
+		dueMessage = no_cards_left_txt #! config status
 	elif dueCount == 1:
 		dueMessage = "(" + str(dueCount) + " card left)"
 	else:
@@ -181,7 +181,7 @@ def onState(state, oldState):
 	if state == "deckBrowser":
 		update(menu_status) #! config status
 	elif state == "review":
-		reviews_msg = reviewing_status #!config status
+		reviews_msg = reviewing_status #! config status
 		if show_deck_on and deck_name != "": #! config setting
 			reviews_msg += " [" + deck_name + "]"
 		update(reviews_msg)
