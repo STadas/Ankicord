@@ -1,1 +1,1 @@
-{"defaults": {"activity": "on", "card_count": "on", "timer": "on", "spotify": "off"}}
+{"defaults": {"main": {"activity": "on", "card_count": "on", "deck_name": "on", "timer": "on", "spotify": "off"}, "statuses": {"menu_status": "Slacking off", "reviewing_status": "Daily reviews", "browsing_status": "Browsing decks", "editing_status": "Adding cards", "no_cards_left_txt": "No cards left"}}}

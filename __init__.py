@@ -7,12 +7,13 @@
 
 from anki.hooks import addHook
 from aqt import mw
+from aqt.utils import showInfo
 import time, os, json
 from . import pypresence
-from aqt.utils import showInfo
 
 # Globals
 dueMessage = "   " # initial state value for Rich Presence as it doesn't allow an empty value like ""
+deck_name = ""
 skipEdit = 0
 connected = False
 start_time = round(time.time()) # timer start for Rich Presence
@@ -20,12 +21,61 @@ curr_time = round(time.time()) - 15 # timer for limiting Rich Presence requests
 client_id = '745326655395856514' # the Discord developer application in use. You can change this if you want to use your own with your own assets (like icons, etc.)
 rpc = pypresence.presence.Presence(client_id) # init client class
 
-# set config
+# set default config
+default_config = {
+	"main": {
+		"activity": "on",
+		"card_count": "on",
+		"deck_name": "on",
+		"timer": "on",
+		"spotify": "off"
+	},
+	"statuses": {
+		"menu_status": "Slacking off",
+		"reviewing_status": "Daily reviews",
+		"browsing_status": "Browsing decks",
+		"editing_status": "Adding cards",
+		"no_cards_left_txt": "No cards left"
+	}
+}
+
+# get meta config
 config = mw.addonManager.getConfig(__name__)['defaults']
-spotify_on = config['spotify'] == "on"
-card_count_on = config['card_count'] == "on"
-activity_on = config['activity'] == "on"
-timer_on = config['timer'] == "on"
+
+def applyConfig(conf_json):
+	global activity_on
+	global card_count_on
+	global show_deck_on
+	global spotify_on
+	global timer_on
+
+	global menu_status
+	global reviewing_status
+	global browsing_status
+	global editing_status
+	global no_cards_left_txt
+
+	main_conf = conf_json ['main']
+	activity_on = main_conf['activity'] == "on"
+	card_count_on = main_conf['card_count'] == "on"
+	show_deck_on = main_conf['deck_name'] == "on"
+	spotify_on = main_conf['spotify'] == "on"
+	timer_on = main_conf['timer'] == "on"
+
+	status_conf = conf_json['statuses']
+	menu_status = str(status_conf['menu_status'])
+	reviewing_status = str(status_conf['reviewing_status'])
+	browsing_status = str(status_conf['browsing_status'])
+	editing_status = str(status_conf['editing_status'])
+	no_cards_left_txt = str(status_conf['no_cards_left_txt'])
+
+try:
+	# try to use apply meta config
+	applyConfig(config)
+except:
+	# use defaults if failed
+	applyConfig(default_config)
+	showInfo(text="The default config.json for Ankicord has been updated or there is an error in your custom config!\n\nIt is recommended to go to Tools>Add-ons>Ankicord>Config and restore defaults or find any mistakes in your custom config if you have made/plan to make edits (and if you don't want this infobox popping up).\n\nFor now, the default config will be used.")
 
 if not timer_on: #! config setting
 	start_time = None
@@ -89,7 +139,7 @@ def update(detailsMessage):
 		print(e)
 
 if activity_on: #! config setting
-	update("Slacking off")
+	update(menu_status) #! config status
 else:
 	update("   ")
 
@@ -108,7 +158,7 @@ def dueToday():
 
 	# Correct for single or no cards
 	if dueCount == 0:
-		dueMessage = "No cards left"
+		dueMessage = no_cards_left_txt
 	elif dueCount == 1:
 		dueMessage = "(" + str(dueCount) + " card left)"
 	else:
@@ -129,14 +179,17 @@ def onState(state, oldState):
 
 	# Check states:
 	if state == "deckBrowser":
-		update("Slacking off")
+		update(menu_status) #! config status
 	elif state == "review":
-		update("Daily reviews")
+		reviews_msg = reviewing_status #!config status
+		if show_deck_on and deck_name != "": #! config setting
+			reviews_msg += " [" + deck_name + "]"
+		update(reviews_msg)
 	elif state == "browse":
 		skipEdit = 1
-		update("Browsing decks")
+		update(browsing_status) #! config status
 	elif state == "edit":
-		update("Adding cards")
+		update(editing_status) #! config status
 
 ##### Simulated states
 ## onBrowse --> when loading browser menu
@@ -155,7 +208,9 @@ def onEditor(x, y):
 
 ## onAnswer --> when answering card (update cards left)
 def onAnswer():
-	onState("review", "review")
+	global deck_name
+	deck_name = str(mw.col.decks.get(mw.reviewer.card.did)['name'])
+	onState("review", "dummy")
 
 ##### Hooks
 addHook("afterStateChange", onState)
