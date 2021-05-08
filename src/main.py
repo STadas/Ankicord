@@ -185,7 +185,7 @@ class Ankicord():
             reviews_msg = self.__get_config_val(self.status_conf,
                                                 'reviewing_status',
                                                 str)
-            show_deck = self.__get_config_val(self.main_conf, 'show_deck', bool)
+            show_deck = self.__get_config_val(self.main_conf, 'deck_name', bool)
             if show_deck and self.deck_name != "":
                 reviews_msg += " [" + self.deck_name + "]"
             self.__rpc_update(reviews_msg)
