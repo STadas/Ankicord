@@ -26,15 +26,17 @@ class Ankicord():
         self.skip_edit = False
 
         self.connected = False
-        self.rpc = pp.Presence('745326655395856514')
         self.start_time = round(time.time())
+        conf_disc_id = self.__get_config_val(self.main_conf,
+                                             'discord_client',
+                                             str)
+        default_disc_id = "745326655395856514"
+        self.rpc = pp.Presence(conf_disc_id if conf_disc_id else default_disc_id)
 
         if self.__get_config_val(self.main_conf, 'activity', bool):
             self.rpc_next_details = self.__get_config_val(self.status_conf,
                                                           'menu_status',
                                                           str)
-        else:
-            self.rpc_next_details = "   "
 
     def __get_resolved_config(self,
                               cfg: Union[dict, list] = None) -> Union[dict, list]:
