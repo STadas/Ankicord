@@ -4,7 +4,7 @@
 import time
 import os
 from typing import Union
-from threading import Thread, Semaphore
+from threading import Thread
 
 from anki.hooks import addHook
 from aqt import mw
@@ -35,8 +35,6 @@ class Ankicord():
                                                           str)
         else:
             self.rpc_next_details = "   "
-
-        self.sem = Semaphore()
 
     def __get_resolved_config(self,
                               cfg: Union[dict, list] = None) -> Union[dict, list]:
@@ -113,7 +111,6 @@ class Ankicord():
 
     def __rpc_update(self) -> None:
         """Updates the Discord Rich Presence with provided details_message"""
-        self.sem.acquire()
         try:
             if not self.connected:
                 self.connect_rpc()
@@ -142,7 +139,6 @@ class Ankicord():
         except Exception as ex:
             self.connected = False
             print(ex)
-        self.sem.release()
 
     def __update_rpc_next_state(self) -> None:
         """Calculate reviews due"""
@@ -163,7 +159,6 @@ class Ankicord():
     def on_state(self, state, _old_state):
         """Take current state and old_state from hook; If browsing, skip
         'edit' hook; Call update"""
-        self.sem.acquire()
         if self.__get_config_val(self.main_conf, 'card_count', bool):
             self.__update_rpc_next_state()
 
@@ -197,7 +192,6 @@ class Ankicord():
             self.rpc_next_details = self.__get_config_val(self.status_conf,
                                                           'editing_status',
                                                           str)
-        self.sem.release()
 
     def on_browse(self, _x):
         """Handle browse state"""
