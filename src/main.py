@@ -147,10 +147,8 @@ class Ankicord():
     def __update_rpc_next_state(self) -> None:
         """Calculate reviews due"""
         due_count = 0
-
-        for i in mw.col.sched.deckDueTree():  # TODO: deprecated
-            _name, _did, due, lrn, new, _children = i
-            due_count += due + lrn + new
+        decks = mw.col.sched.deck_due_tree()
+        due_count = decks.new_count + decks.learn_count + decks.review_count
 
         # Correct for single or no cards
         if due_count == 0:
