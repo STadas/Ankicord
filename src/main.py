@@ -1,10 +1,4 @@
-"""Full disclosure: https://ankiweb.net/shared/info/1133851639 was used as a
-base. I tried using it myself at first but noticed several problems including
-the deprecated RPC library. The main problem was that the add-on/repository had
-not been updated to fix these issues for more than half a year. So I decided to
-(hopefully) fix all the issues and improve the add-on overall as well as keep
-updating it if anything pops up"""
-
+"""Main script for Ankicord"""
 # pylint: disable=broad-except
 
 import time
@@ -19,6 +13,11 @@ class Ankicord():
     """Ankicord class"""
 
     def __init__(self):
+        config = self.__get_resolved_config()
+        self.main_conf = config['main']
+        self.status_conf = config['statuses']
+        print(config)
+
         self.due_message = "   "
         self.deck_name = ""
         self.skip_edit = False
@@ -27,10 +26,17 @@ class Ankicord():
         self.curr_time = round(time.time()) - 15
 
         self.connected = False
-        self.client_id = '745326655395856514'
-        self.rpc = pp.Presence(self.client_id)
+        self.rpc = pp.Presence('745326655395856514')
 
-        self.config = self.__get_resolved_config()
+        if not self.__get_config_val(self.main_conf, 'timer', bool):
+            self.start_time = None
+
+        if self.__get_config_val(self.main_conf, 'activity', bool):
+            self.__rpc_update(self.__get_config_val(self.status_conf,
+                                                    'menu_status',
+                                                    str))
+        else:
+            self.__rpc_update("   ")
 
     def __get_resolved_config(self,
                               cfg: Union[dict, list] = None) -> Union[dict, list]:
@@ -98,23 +104,24 @@ class Ankicord():
             print(ex)
             return None
 
-    def get_config_val(self, cfg_key, cfg_type):
+    def __get_config_val(self, cfg, cfg_key, cfg_type):
         """Check if key in config exists. If it does, get value, if not - None"""
-        cfg_val = self.config.get(cfg_key, None)
+        cfg_val = cfg.get(cfg_key, None)
+        print(cfg_key + ":", cfg_val)
         if isinstance(cfg_val, cfg_type):
             return cfg_val
         return None
 
-    def rpc_update(self, details_message) -> None:
+    def __rpc_update(self, details_message) -> None:
         """Updates the Discord Rich Presence with provided details_message"""
         try:
             if not self.connected:
                 self.connect_rpc()
 
             # update Rich Presence
-            if round(time.time()) - 15 > curr_time:
+            if round(time.time()) - 15 > self.curr_time:
                 #! Spotify (LINUX ONLY)
-                if self.get_config_val('spotify', bool):
+                if self.__get_config_val(self.main_conf, 'spotify', bool):
                     spotify_info = self.__get_spotify_info()
                     if spotify_info is not None:
                         self.rpc.update(details=details_message,
@@ -129,11 +136,14 @@ class Ankicord():
                                         large_image="anki",
                                         start=self.start_time)
                 else:
+                    print("details", f"'{str(details_message)}'")
+                    print("due", f"'{str(self.due_message)}'")
+                    print("start", self.start_time)
                     self.rpc.update(details=details_message,
                                     state=self.due_message,
                                     large_image="anki",
                                     start=self.start_time)
-                curr_time = round(time.time())
+                self.curr_time = round(time.time())
         except Exception as ex:
             self.connected = False
             print(ex)
@@ -148,7 +158,9 @@ class Ankicord():
 
         # Correct for single or no cards
         if due_count == 0:
-            self.due_message = str(self.config['no_cards_left_txt'])
+            self.due_message = self.__get_config_val(self.status_conf,
+                                                     'no_cards_left_txt',
+                                                     str)
         elif due_count == 1:
             self.due_message = "(" + str(due_count) + " card left)"
         else:
@@ -157,28 +169,37 @@ class Ankicord():
     def on_state(self, state, _old_state):
         """Take current state and old_state from hook. If browsing, skip
         'edit' hook. Call update"""
-        if self.get_config_val('card_count', bool):
+        if self.__get_config_val(self.main_conf, 'card_count', bool):
             self.update_due_message()
 
-        if not self.get_config_val('activity', bool):
-            self.rpc_update("   ")
+        if not self.__get_config_val(self.main_conf, 'activity', bool):
+            self.__rpc_update("   ")
             return
 
         if state == "deckBrowser":
-            self.rpc_update(self.get_config_val('menu_status', str))
+            self.__rpc_update(self.__get_config_val(self.status_conf,
+                                                    'menu_status',
+                                                    str))
 
         elif state == "review":
-            reviews_msg = self.get_config_val('reviewing_status', str)
-            if self.get_config_val('show_deck', bool) and self.deck_name != "":
+            reviews_msg = self.__get_config_val(self.status_conf,
+                                                'reviewing_status',
+                                                str)
+            show_deck = self.__get_config_val(self.main_conf, 'show_deck', bool)
+            if show_deck and self.deck_name != "":
                 reviews_msg += " [" + self.deck_name + "]"
-            self.rpc_update(reviews_msg)
+            self.__rpc_update(reviews_msg)
 
         elif state == "browse":
             self.skip_edit = True
-            self.rpc_update(self.get_config_val('browsing_status', str))
+            self.__rpc_update(self.__get_config_val(self.status_conf,
+                                                    'browsing_status',
+                                                    str))
 
         elif state == "edit":
-            self.rpc_update(self.get_config_val('editing_status', str))
+            self.__rpc_update(self.__get_config_val(self.status_conf,
+                                                    'editing_status',
+                                                    str))
 
     def on_browse(self, _x):
         """Handle browse state"""
@@ -198,15 +219,7 @@ class Ankicord():
 
 
 ac = Ankicord()
-
-if not ac.get_config_val('timer', bool):
-    ac.start_time = None
-
-if ac.get_config_val('activity', bool):
-    ac.rpc_update(ac.get_config_val('menu_status', str))
-else:
-    ac.rpc_update("   ")
-
+ac.connect_rpc()
 
 addHook("afterStateChange", ac.on_state)
 addHook("browser.setupMenus", ac.on_browse)
