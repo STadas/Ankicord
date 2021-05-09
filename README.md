@@ -6,5 +6,5 @@ An Anki add-on that utilizes the pypresence library and updates your Discord sta
 
 If you have any feedback, submit an issue here or let me know on the Ankiweb [add-on page](https://ankiweb.net/shared/info/1828536813).
 
-Example appearance of add-on:
+Example appearance of add-on:<br>
 ![Example appearance of add-on](https://i.imgur.com/31NOLTB.png)
