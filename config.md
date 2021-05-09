@@ -9,12 +9,12 @@
 
 >**count_deck**: Display cards left only for the last active deck instead of all of them. No effect if card_count is off.
 
->**counts**: Set which counts to sum up for the 'cards left' status. (["new", "learn", "review"], which are the blue, red, green numbers respectively)
+>**counts**: Set which counts to sum up for the 'cards left' (2nd) field. (["new", "learn", "review"], which are the blue, red, green numbers respectively)
 
->**timer**: Display time elapsed after Anki has been launched<br>
+>**timer**: Display how long the rich presence has been active.<br>
 >*<time in hh:mm:ss or days, etc.\> elapsed*
 
->**deck_name**: Display deck name next to "Daily reviews" when reviewing<br>
+>**deck_name**: Display deck name next to "Daily reviews" (1st) field when reviewing<br>
 >*Daily reviews \[<deck name\>\]*
 
 >**spotify**: \[LINUX ONLY. Commands used: gdbus, dbus-send\] Display Spotify icon and track name when hovered over it when something is playing.<br>
@@ -24,7 +24,7 @@
 
 ### statuses
 If you do not want your rich presence to be displayed when in a certain state, set it to "", for example: "menu_status": "".<br>
-If you want the status text to be empty for a certain state, set it to "&nbsp;&nbsp;&nbsp;" (3 spaces), for example "menu_status": "&nbsp;&nbsp;&nbsp;".
+If you want the 1st field to be empty for a certain state, set it to "&nbsp;&nbsp;&nbsp;" (3 spaces), for example "menu_status": "&nbsp;&nbsp;&nbsp;".
 >**menu_status**: Text to display when in menu (Slacking off)
 
 >**reviewing_status**: Text to display when reviewing (Daily reviews)
