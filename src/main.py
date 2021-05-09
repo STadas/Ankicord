@@ -116,6 +116,11 @@ class Ankicord():
             if not self.connected:
                 self.connect_rpc()
 
+            if len(self.rpc_next_details) < 3 or len(self.rpc_next_state) < 3:
+                self.rpc.clear()
+                self.start_time = round(time.time())
+                return
+
             # update Rich Presence
             #! Spotify (LINUX ONLY)
             if self.__cfg_val(self.main_cfg, 'spotify', bool):

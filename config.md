@@ -23,6 +23,8 @@
 >**discord_client**: Use your own Discord Application with custom icons. Currently used icon names are: "anki", "spotify". (745326655395856514)
 
 ### statuses
+If you do not want your rich presence to be displayed when in a certain state, set it to "", for example: "menu_status": "".<br>
+If you want the status text to be empty for a certain state, set it to "&nbsp;&nbsp;&nbsp;" (3 spaces), for example "menu_status": "&nbsp;&nbsp;&nbsp;".
 >**menu_status**: Text to display when in menu (Slacking off)
 
 >**reviewing_status**: Text to display when reviewing (Daily reviews)
