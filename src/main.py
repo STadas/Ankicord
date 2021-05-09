@@ -103,7 +103,8 @@ class Ankicord():
             return None
 
     def __cfg_val(self, cfg: Union[list, dict], cfg_key: str, cfg_type):
-        """Check if key in config exists. If it does, get value, if not - None"""
+        """Check if key in config exists. If it does, get value,
+        if not - None"""
         cfg_val = cfg.get(cfg_key, None)
         if isinstance(cfg_val, cfg_type):
             return cfg_val
@@ -154,7 +155,15 @@ class Ankicord():
                 print("Can't find deck", ex)
 
         try:
-            due_count = node.new_count + node.learn_count + node.review_count
+            counts = {
+                "new": node.new_count,
+                "learn": node.learn_count,
+                "review": node.review_count
+            }
+            counts_keys = self.__cfg_val(self.main_cfg, 'counts', list)
+            if isinstance(counts_keys, list):
+                for key in counts_keys:
+                    due_count += counts.get(key, 0)
         except AttributeError as ex:
             print("Deck doesn't have the proper attributes", ex)
 

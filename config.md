@@ -2,12 +2,14 @@
 ### main
 >**activity**: Display what you're doing in Anki as the first field.<br>
 >Default values for statuses:<br>
->*Slacking off (main menu) / Daily reviews / Browsing decks / Adding cards*
+>*Slacking off / Daily reviews / Browsing decks / Adding cards*
 
 >**card_count**: Display cards left for today as the second field.<br>
 >*(<card amount\> cards left)*
 
->**count_deck**: Display cards left only for the last active deck instead of all of them. No effect if card_count is off.<br>
+>**count_deck**: Display cards left only for the last active deck instead of all of them. No effect if card_count is off.
+
+>**counts**: Set which counts to sum up for the 'cards left' status. (["new", "learn", "review"], which are the blue, red, green numbers respectively)
 
 >**timer**: Display time elapsed after Anki has been launched<br>
 >*<time in hh:mm:ss or days, etc.\> elapsed*
@@ -18,7 +20,7 @@
 >**spotify**: \[LINUX ONLY. Commands used: gdbus, dbus-send\] Display Spotify icon and track name when hovered over it when something is playing.<br>
 >*[Example](https://i.imgur.com/IJba0Tj.png)*
 
->**discord_client**: Use your own Discord Application with custom icons. Default ID is "745326655395856514". Currently used icon names are: "anki", "spotify".<br>
+>**discord_client**: Use your own Discord Application with custom icons. Currently used icon names are: "anki", "spotify". (745326655395856514)
 
 ### statuses
 >**menu_status**: Text to display when in menu (Slacking off)

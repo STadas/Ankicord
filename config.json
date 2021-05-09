@@ -1,1 +1,21 @@
-{"defaults": {"main": {"activity": "on", "card_count": "on", "count_deck": "off", "deck_name": "on", "timer": "on", "spotify": "off", "discord_client": "745326655395856514"}, "statuses": {"menu_status": "Slacking off", "reviewing_status": "Daily reviews", "browsing_status": "Browsing decks", "editing_status": "Adding cards", "no_cards_left_txt": "No cards left"}}}
+{
+	"defaults": {
+		"main": {
+			"activity": "on",
+			"card_count": "on",
+			"count_deck": "off",
+			"counts": ["new", "learn", "review"],
+			"deck_name": "on",
+			"timer": "on",
+			"spotify": "off",
+			"discord_client": "745326655395856514"
+		},
+		"statuses": {
+			"menu_status": "Slacking off",
+			"reviewing_status": "Daily reviews",
+			"browsing_status": "Browsing decks",
+			"editing_status": "Adding cards",
+			"no_cards_left_txt": "No cards left"
+		}
+	}
+}
