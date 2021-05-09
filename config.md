@@ -1,4 +1,4 @@
-*"on"* to enable feature, anything else to disable it.
+*"on"* or *true* to enable feature, anything else to disable it.
 ### main
 >**activity**: Display what you're doing in Anki as the first field.<br>
 >Default values for statuses:<br>
@@ -6,6 +6,8 @@
 
 >**card_count**: Display cards left for today as the second field.<br>
 >*(<card amount\> cards left)*
+
+>**count_deck**: Display cards left only for the last active deck instead of all of them. No effect if card_count is off.<br>
 
 >**timer**: Display time elapsed after Anki has been launched<br>
 >*<time in hh:mm:ss or days, etc.\> elapsed*
@@ -15,6 +17,8 @@
 
 >**spotify**: \[LINUX ONLY. Commands used: gdbus, dbus-send\] Display Spotify icon and track name when hovered over it when something is playing.<br>
 >*[Example](https://i.imgur.com/IJba0Tj.png)*
+
+>**discord_client**: Use your own Discord Application with custom icons. Default ID is "745326655395856514". Currently used icon names are: "anki", "spotify".<br>
 
 ### statuses
 >**menu_status**: Text to display when in menu (Slacking off)

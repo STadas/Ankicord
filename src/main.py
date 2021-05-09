@@ -16,30 +16,28 @@ class Ankicord():
     """Ankicord class"""
 
     def __init__(self):
-        config = self.__get_resolved_config()
-        self.main_conf = config['main']
-        self.status_conf = config['statuses']
+        cfg = self.__get_resolved_cfg()
+        self.main_cfg = cfg['main']
+        self.status_cfg = cfg['statuses']
 
         self.rpc_next_details = "   "
         self.rpc_next_state = "   "
-        self.deck_name = ""
+        self.last_deck = None
         self.skip_edit = False
 
         self.connected = False
         self.start_time = round(time.time())
-        conf_disc_id = self.__get_config_val(self.main_conf,
-                                             'discord_client',
-                                             str)
+        cfg_disc_id = self.__cfg_val(self.main_cfg, 'discord_client', str)
         default_disc_id = "745326655395856514"
-        self.rpc = pp.Presence(conf_disc_id if conf_disc_id else default_disc_id)
+        self.rpc = pp.Presence(cfg_disc_id if cfg_disc_id else default_disc_id)
 
-        if self.__get_config_val(self.main_conf, 'activity', bool):
-            self.rpc_next_details = self.__get_config_val(self.status_conf,
-                                                          'menu_status',
-                                                          str)
+        if self.__cfg_val(self.main_cfg, 'activity', bool):
+            self.rpc_next_details = self.__cfg_val(self.status_cfg,
+                                                   'menu_status',
+                                                   str)
 
-    def __get_resolved_config(self,
-                              cfg: Union[dict, list] = None) -> Union[dict, list]:
+    def __get_resolved_cfg(self,
+                           cfg: Union[dict, list] = None) -> Union[dict, list]:
         """Translate config (e.g. 'on' -> True)"""
         if cfg is None:
             cfg = mw.addonManager.getConfig(__name__)['defaults']
@@ -58,7 +56,7 @@ class Ankicord():
 
         for k in config_keys:
             if isinstance(cfg[k], (dict, list)):
-                cfg[k] = self.__get_resolved_config(cfg[k])
+                cfg[k] = self.__get_resolved_cfg(cfg[k])
             elif isinstance(cfg[k], str) and cfg[k] in table:
                 cfg[k] = table[cfg[k]]
         return cfg
@@ -104,12 +102,12 @@ class Ankicord():
             print(ex)
             return None
 
-    def __get_config_val(self, cfg: Union[list, dict], cfg_key: str, cfg_type):
+    def __cfg_val(self, cfg: Union[list, dict], cfg_key: str, cfg_type):
         """Check if key in config exists. If it does, get value, if not - None"""
         cfg_val = cfg.get(cfg_key, None)
         if isinstance(cfg_val, cfg_type):
             return cfg_val
-        return None
+        return False if cfg_type == bool else None
 
     def __rpc_update(self) -> None:
         """Updates the Discord Rich Presence with provided details_message"""
@@ -119,7 +117,7 @@ class Ankicord():
 
             # update Rich Presence
             #! Spotify (LINUX ONLY)
-            if self.__get_config_val(self.main_conf, 'spotify', bool):
+            if self.__cfg_val(self.main_cfg, 'spotify', bool):
                 spotify_info = self.__get_spotify_info()
                 if spotify_info is not None:
                     self.rpc.update(details=self.rpc_next_details,
@@ -143,16 +141,27 @@ class Ankicord():
             print(ex)
 
     def __update_rpc_next_state(self) -> None:
-        """Calculate reviews due"""
+        """Calculate cards due"""
         due_count = 0
-        decks = mw.col.sched.deck_due_tree()
-        due_count = decks.new_count + decks.learn_count + decks.review_count
+        node = mw.col.sched.deck_due_tree()
+        count_deck = self.__cfg_val(self.main_cfg, 'count_deck', bool)
 
-        # Correct for single or no cards
+        if count_deck and self.last_deck is not None:
+            try:
+                last_id = int(self.last_deck['id'])
+                node = next(d for d in node.children if d.deck_id == last_id)
+            except StopIteration as ex:
+                print("Can't find deck", ex)
+
+        try:
+            due_count = node.new_count + node.learn_count + node.review_count
+        except AttributeError as ex:
+            print("Deck doesn't have the proper attributes", ex)
+
         if due_count == 0:
-            self.rpc_next_state = self.__get_config_val(self.status_conf,
-                                                        'no_cards_left_txt',
-                                                        str)
+            self.rpc_next_state = self.__cfg_val(self.status_cfg,
+                                                 'no_cards_left_txt',
+                                                 str)
         elif due_count == 1:
             self.rpc_next_state = "(" + str(due_count) + " card left)"
         else:
@@ -161,39 +170,39 @@ class Ankicord():
     def on_state(self, state, _old_state):
         """Take current state and old_state from hook; If browsing, skip
         'edit' hook; Call update"""
-        if self.__get_config_val(self.main_conf, 'card_count', bool):
+        if self.__cfg_val(self.main_cfg, 'card_count', bool):
             self.__update_rpc_next_state()
 
-        if not self.__get_config_val(self.main_conf, 'activity', bool):
+        if not self.__cfg_val(self.main_cfg, 'activity', bool):
             self.rpc_next_details = "   "
             return
 
         if state == "deckBrowser":
-            self.rpc_next_details = self.__get_config_val(self.status_conf,
-                                                          'menu_status',
-                                                          str)
+            self.rpc_next_details = self.__cfg_val(self.status_cfg,
+                                                   'menu_status',
+                                                   str)
 
         elif state == "review":
-            reviews_msg = self.__get_config_val(self.status_conf,
-                                                'reviewing_status',
-                                                str)
-            show_deck = self.__get_config_val(self.main_conf,
-                                              'deck_name',
-                                              bool)
-            if show_deck and self.deck_name != "":
-                reviews_msg += " [" + self.deck_name + "]"
+            self.last_deck = mw.col.decks.get(mw.reviewer.card.did)
+            reviews_msg = self.__cfg_val(self.status_cfg,
+                                         'reviewing_status',
+                                         str)
+            show_deck = self.__cfg_val(self.main_cfg, 'deck_name', bool)
+
+            if show_deck:
+                reviews_msg += " [" + self.last_deck['name'] + "]"
             self.rpc_next_details = reviews_msg
 
         elif state == "browse":
             self.skip_edit = True
-            self.rpc_next_details = self.__get_config_val(self.status_conf,
-                                                          'browsing_status',
-                                                          str)
+            self.rpc_next_details = self.__cfg_val(self.status_cfg,
+                                                   'browsing_status',
+                                                   str)
 
         elif state == "edit":
-            self.rpc_next_details = self.__get_config_val(self.status_conf,
-                                                          'editing_status',
-                                                          str)
+            self.rpc_next_details = self.__cfg_val(self.status_cfg,
+                                                   'editing_status',
+                                                   str)
 
     def on_browse(self, _x):
         """Handle browse state"""
@@ -208,7 +217,6 @@ class Ankicord():
 
     def on_answer(self):
         """Handle review state"""
-        self.deck_name = str(mw.col.decks.get(mw.reviewer.card.did)['name'])
         self.on_state("review", "dummy")
 
     def job(self):
