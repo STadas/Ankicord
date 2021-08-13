@@ -197,7 +197,11 @@ class Ankicord():
                                                    str)
 
         elif state == "review":
-            self.last_deck = mw.col.decks.get(mw.reviewer.card.did)
+            last_card = mw.reviewer.card
+            if last_card is None:
+                return
+
+            self.last_deck = mw.col.decks.get(last_card.did)
             reviews_msg = self.__cfg_val(self.status_cfg,
                                          'reviewing_status',
                                          str)
