@@ -5,6 +5,7 @@ import time
 import os
 from typing import Union
 from threading import Thread
+import asyncio
 
 from anki.hooks import addHook
 from aqt import mw
@@ -27,9 +28,9 @@ class Ankicord():
 
         self.connected = False
         self.start_time = round(time.time())
-        cfg_disc_id = self.__cfg_val(self.main_cfg, 'discord_client', str)
-        default_disc_id = "745326655395856514"
-        self.rpc = pp.Presence(cfg_disc_id if cfg_disc_id else default_disc_id)
+        self.cfg_disc_id = self.__cfg_val(self.main_cfg, 'discord_client', str)
+        self.default_disc_id = "745326655395856514"
+        self.rpc = pp.Presence(self.cfg_disc_id if self.cfg_disc_id else self.default_disc_id)
 
         if self.__cfg_val(self.main_cfg, 'activity', bool):
             self.rpc_next_details = self.__cfg_val(self.status_cfg,
@@ -64,6 +65,8 @@ class Ankicord():
     def connect_rpc(self) -> None:
         """Connect to the Discord Rich Presence"""
         try:
+            asyncio.set_event_loop(asyncio.new_event_loop())
+            self.rpc = pp.Presence(self.cfg_disc_id if self.cfg_disc_id else self.default_disc_id)
             self.rpc.connect()
             self.connected = True
         except Exception as ex:
@@ -99,7 +102,7 @@ class Ankicord():
 
             return None
         except Exception as ex:
-            print("Couldn't get spotify info:", ex)
+            print("Couldn't get Spotify info:", ex)
             return None
 
     def __cfg_val(self, cfg: Union[list, dict], cfg_key: str, cfg_type):
@@ -144,7 +147,7 @@ class Ankicord():
                                 start=self.start_time)
         except Exception as ex:
             self.connected = False
-            print("Couldn't update RPC:", ex)
+            print("Couldn't update Discord Rich Presence:", ex)
 
     def __update_rpc_next_state(self) -> None:
         """Calculate cards due"""
