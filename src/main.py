@@ -67,7 +67,7 @@ class Ankicord():
             self.rpc.connect()
             self.connected = True
         except Exception as ex:
-            print(ex)
+            print("Couldn't connect to Discord Rich Presence:", ex)
 
     @staticmethod
     def __get_spotify_info() -> str:
@@ -99,7 +99,7 @@ class Ankicord():
 
             return None
         except Exception as ex:
-            print(ex)
+            print("Couldn't get spotify info:", ex)
             return None
 
     def __cfg_val(self, cfg: Union[list, dict], cfg_key: str, cfg_type):
@@ -144,7 +144,7 @@ class Ankicord():
                                 start=self.start_time)
         except Exception as ex:
             self.connected = False
-            print(ex)
+            print("Couldn't update RPC:", ex)
 
     def __update_rpc_next_state(self) -> None:
         """Calculate cards due"""
@@ -157,7 +157,7 @@ class Ankicord():
                 last_id = int(self.last_deck['id'])
                 node = next(d for d in node.children if d.deck_id == last_id)
             except StopIteration as ex:
-                print("Can't find deck", ex)
+                print("Couldn't find deck:", ex)
 
         try:
             counts = {
@@ -170,7 +170,7 @@ class Ankicord():
                 for key in counts_keys:
                     due_count += counts.get(key, 0)
         except AttributeError as ex:
-            print("Deck doesn't have the proper attributes", ex)
+            print("Deck doesn't have the expected attributes:", ex)
 
         if due_count == 0:
             self.rpc_next_state = self.__cfg_val(self.status_cfg,
