@@ -3,4 +3,3 @@ __pycache__/*
 *.ankiaddon
 *.pyc
 meta.json
-build.sh
