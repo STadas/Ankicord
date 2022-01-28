@@ -30,7 +30,7 @@ class Ankicord():
         self.start_time = round(time.time())
         self.cfg_disc_id = self.__cfg_val(self.main_cfg, 'discord_client', str)
         self.default_disc_id = "745326655395856514"
-        self.rpc = pp.Presence(self.cfg_disc_id if self.cfg_disc_id else self.default_disc_id)
+        self.connect_rpc()
 
         if self.__cfg_val(self.main_cfg, 'activity', bool):
             self.rpc_next_details = self.__cfg_val(self.status_cfg,
