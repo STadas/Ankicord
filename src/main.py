@@ -3,6 +3,7 @@
 
 import time
 import os
+import sys
 from typing import Union
 from threading import Thread
 import asyncio
@@ -11,6 +12,7 @@ from anki.hooks import addHook
 from aqt import mw
 
 from .pypresence import presence as pp
+from .pypresence import utils as pp_utils
 
 
 class Ankicord():
@@ -65,7 +67,7 @@ class Ankicord():
     def connect_rpc(self) -> None:
         """Connect to the Discord Rich Presence"""
         try:
-            asyncio.set_event_loop(asyncio.new_event_loop())
+            pp_utils.get_event_loop(True)
             self.rpc = pp.Presence(self.cfg_disc_id if self.cfg_disc_id else self.default_disc_id)
             self.rpc.connect()
             self.connected = True
