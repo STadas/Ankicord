@@ -3,10 +3,8 @@
 
 import time
 import os
-import sys
 from typing import Union
 from threading import Thread
-import asyncio
 
 from anki.hooks import addHook
 from aqt import mw
@@ -153,8 +151,12 @@ class Ankicord():
 
     def __update_rpc_next_state(self) -> None:
         """Calculate cards due"""
+        collection = mw.col
+        if collection is None:
+            return
+
         due_count = 0
-        node = mw.col.sched.deck_due_tree()
+        node = collection.sched.deck_due_tree()
         count_deck = self.__cfg_val(self.main_cfg, 'count_deck', bool)
 
         if count_deck and self.last_deck is not None:
