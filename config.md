@@ -7,7 +7,7 @@
 >**card_count**: Display cards left for today as the second field.<br>
 >*(<card amount\> cards left)*
 
->**card_count_parens**: (Does nothing if card_count is off) Display parentheses around card count.<br>
+>**card_count_parens**: (Does nothing if card_count is off) Display parentheses around card count.
 
 >**count_deck**: Display cards left only for the last active deck instead of all of them. No effect if card_count is off.
 
