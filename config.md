@@ -7,6 +7,8 @@
 >**card_count**: Display cards left for today as the second field.<br>
 >*(<card amount\> cards left)*
 
+>**card_count_parens**: (Does nothing if card_count is off) Display parentheses around card count.
+
 >**count_deck**: Display cards left only for the last active deck instead of all of them. No effect if card_count is off.
 
 >**counts**: Set which counts to sum up for the 'cards left' (2nd) field. (["new", "learn", "review"], which are the blue, red, green numbers respectively) Simply remove any that you don't want to be tracked from the list.
@@ -34,3 +36,5 @@ If you want the 1st field to be empty for a certain state, set it to "&nbsp;&nbs
 >**editing_status**: Text to display when editing/adding cards (Adding cards)
 
 >**no_cards_left_txt**: (Only works if card_count is on) Text to display when cards left to study/review is 0 (No cards left)
+
+>**menu_status_no_cards**: (Only works if card_count is on) Text to display when in menu and cards left to study/review is 0 (Feeling good)

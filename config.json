@@ -3,6 +3,7 @@
 		"main": {
 			"activity": "on",
 			"card_count": "on",
+			"card_count_parens": "on",
 			"count_deck": "off",
 			"counts": ["new", "learn", "review"],
 			"deck_name": "on",
@@ -15,7 +16,8 @@
 			"reviewing_status": "Daily reviews",
 			"browsing_status": "Browsing decks",
 			"editing_status": "Adding cards",
-			"no_cards_left_txt": "No cards left"
+			"no_cards_left_txt": "No cards left",
+			"menu_status_no_cards": "Feeling good"
 		}
 	}
 }

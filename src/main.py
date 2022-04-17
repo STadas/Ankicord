@@ -179,14 +179,22 @@ class Ankicord():
         except AttributeError as ex:
             print("Deck doesn't have the expected attributes:", ex)
 
+        card_count_parens = self.__cfg_val(self.main_cfg, 'card_count_parens', bool)
+        
+        paren_left = ""
+        paren_right = ""
+        if card_count_parens:
+            paren_left = "("
+            paren_right = ")"
+        
         if due_count == 0:
             self.rpc_next_state = self.__cfg_val(self.status_cfg,
                                                  'no_cards_left_txt',
                                                  str)
         elif due_count == 1:
-            self.rpc_next_state = "(" + str(due_count) + " card left)"
+            self.rpc_next_state = paren_left + str(due_count) + " card left" + paren_right
         else:
-            self.rpc_next_state = "(" + str(due_count) + " cards left)"
+            self.rpc_next_state = paren_left + str(due_count) + " cards left" + paren_right
 
     def on_state(self, state, _old_state):
         """Take current state and old_state from hook; If browsing, skip
@@ -199,8 +207,15 @@ class Ankicord():
             return
 
         if state == "deckBrowser":
-            self.rpc_next_details = self.__cfg_val(self.status_cfg,
+            if self.rpc_next_state != self.__cfg_val(self.status_cfg,
+                                                 'no_cards_left_txt',
+                                                 str):
+                self.rpc_next_details = self.__cfg_val(self.status_cfg,
                                                    'menu_status',
+                                                   str)
+            else:
+                self.rpc_next_details = self.__cfg_val(self.status_cfg,
+                                                   'menu_status_no_cards',
                                                    str)
 
         elif state == "review":
