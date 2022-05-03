@@ -156,29 +156,29 @@ class Ankicord():
             return
 
         due_count = 0
-        node = collection.sched.deck_due_tree()
         count_deck = self.__cfg_val(self.main_cfg, 'count_deck', bool)
 
         if count_deck and self.last_deck is not None:
-            try:
-                last_id = int(self.last_deck['id'])
-                node = next(d for d in node.children if d.deck_id == last_id)
-            except StopIteration as ex:
-                print("Couldn't find deck:", ex)
+            node = collection.sched.deck_due_tree(self.last_deck['id'])
+        else:
+            node = collection.sched.deck_due_tree()
 
         try:
-            if count_deck and self.last_deck is not None:
+            if node and node.children:
+                counts = {
+                    "new":  sum(ch.new_count for ch in node.children),
+                    "learn": sum(ch.learn_count for ch in node.children),
+                    "review": sum(ch.review_count for ch in node.children),
+                }
+            elif node:
                 counts = {
                     "new":  node.new_count,
                     "learn": node.learn_count,
                     "review": node.review_count,
                 }
             else:
-                counts = {
-                    "new":  sum(ch.new_count for ch in node.children),
-                    "learn": sum(ch.learn_count for ch in node.children),
-                    "review": sum(ch.review_count for ch in node.children),
-                }
+                counts = {}
+
             counts_keys = self.__cfg_val(self.main_cfg, 'counts', list)
             if isinstance(counts_keys, list):
                 for key in counts_keys:
