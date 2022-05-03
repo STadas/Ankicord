@@ -3,6 +3,7 @@
 
 import time
 import os
+import asyncio
 from typing import Union
 from threading import Thread
 
@@ -30,7 +31,6 @@ class Ankicord():
         self.start_time = round(time.time())
         self.cfg_disc_id = self.__cfg_val(self.main_cfg, 'discord_client', str)
         self.default_disc_id = "745326655395856514"
-        self.connect_rpc()
 
         if self.__cfg_val(self.main_cfg, 'activity', bool):
             self.rpc_next_details = self.__cfg_val(self.status_cfg,
@@ -65,7 +65,7 @@ class Ankicord():
     def connect_rpc(self) -> None:
         """Connect to the Discord Rich Presence"""
         try:
-            pp_utils.get_event_loop(True)
+            asyncio.set_event_loop(pp.get_event_loop(True))
             self.rpc = pp.Presence(self.cfg_disc_id if self.cfg_disc_id else self.default_disc_id)
             self.rpc.connect()
             self.connected = True
@@ -167,11 +167,18 @@ class Ankicord():
                 print("Couldn't find deck:", ex)
 
         try:
-            counts = {
-                "new": node.new_count,
-                "learn": node.learn_count,
-                "review": node.review_count
-            }
+            if count_deck and self.last_deck is not None:
+                counts = {
+                    "new":  node.new_count,
+                    "learn": node.learn_count,
+                    "review": node.review_count,
+                }
+            else:
+                counts = {
+                    "new":  sum(ch.new_count for ch in node.children),
+                    "learn": sum(ch.learn_count for ch in node.children),
+                    "review": sum(ch.review_count for ch in node.children),
+                }
             counts_keys = self.__cfg_val(self.main_cfg, 'counts', list)
             if isinstance(counts_keys, list):
                 for key in counts_keys:
@@ -180,13 +187,13 @@ class Ankicord():
             print("Deck doesn't have the expected attributes:", ex)
 
         card_count_parens = self.__cfg_val(self.main_cfg, 'card_count_parens', bool)
-        
+
         paren_left = ""
         paren_right = ""
         if card_count_parens:
             paren_left = "("
             paren_right = ")"
-        
+
         if due_count == 0:
             self.rpc_next_state = self.__cfg_val(self.status_cfg,
                                                  'no_cards_left_txt',
@@ -199,14 +206,13 @@ class Ankicord():
     def on_state(self, state, _old_state):
         """Take current state and old_state from hook; If browsing, skip
         'edit' hook; Call update"""
-        if self.__cfg_val(self.main_cfg, 'card_count', bool):
-            self.__update_rpc_next_state()
 
         if not self.__cfg_val(self.main_cfg, 'activity', bool):
             self.rpc_next_details = "   "
             return
 
         if state == "deckBrowser":
+            self.last_deck = None
             if self.rpc_next_state != self.__cfg_val(self.status_cfg,
                                                  'no_cards_left_txt',
                                                  str):
@@ -234,15 +240,20 @@ class Ankicord():
             self.rpc_next_details = reviews_msg
 
         elif state == "browse":
+            self.last_deck = None
             self.skip_edit = True
             self.rpc_next_details = self.__cfg_val(self.status_cfg,
                                                    'browsing_status',
                                                    str)
 
         elif state == "edit":
+            self.last_deck = None
             self.rpc_next_details = self.__cfg_val(self.status_cfg,
                                                    'editing_status',
                                                    str)
+
+        if self.__cfg_val(self.main_cfg, 'card_count', bool):
+            self.__update_rpc_next_state()
 
     def on_browse(self, _x):
         """Handle browse state"""
@@ -267,7 +278,6 @@ class Ankicord():
 
 
 ac = Ankicord()
-ac.connect_rpc()
 t = Thread(target=ac.job, daemon=True)
 t.start()
 
