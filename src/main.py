@@ -123,6 +123,9 @@ class Ankicord():
                 self.rpc.clear()
                 self.start_time = round(time.time())
                 return
+            
+            show_timer = self.__cfg_val(self.main_cfg, 'timer', bool)
+            start_time = self.start_time if show_timer else None
 
             # update Rich Presence
             #! Spotify (LINUX ONLY)
@@ -134,17 +137,17 @@ class Ankicord():
                                     large_image="anki",
                                     small_image="spotify",
                                     small_text=spotify_info,
-                                    start=self.start_time)
+                                    start=start_time)
                 else:
                     self.rpc.update(details=self.rpc_next_details,
                                     state=self.rpc_next_state,
                                     large_image="anki",
-                                    start=self.start_time)
+                                    start=start_time)
             else:
                 self.rpc.update(details=self.rpc_next_details,
                                 state=self.rpc_next_state,
                                 large_image="anki",
-                                start=self.start_time)
+                                start=start_time)
         except Exception as ex:
             self.connected = False
             print("Couldn't update Discord Rich Presence:", ex)
