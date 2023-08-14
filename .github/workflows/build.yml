@@ -1,0 +1,103 @@
+---
+name: build
+
+on:
+  push:
+    branches:
+      master
+  pull_request:
+
+jobs:
+  build:
+    name: Build ankiaddon
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: zip and rename
+        shell: bash
+        run: ./build.sh
+
+      - name: upload
+        uses: actions/upload-artifact@v2.3.1
+        with:
+          name: ankicord.ankiaddon
+          path: ./ankicord.ankiaddon
+
+  create-release:
+    name: create release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    outputs:
+      upload_url: ${{ steps.create-release.outputs.upload_url }}
+
+    steps:
+      - name: set env vars for release
+        run: |
+          echo "tag_name=nightly-build" >> $GITHUB_ENV
+          echo "release_name=Nightly Release" >> $GITHUB_ENV
+
+      - name: delete previous nightly release and tag
+        uses: actions/github-script@v5.1.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            try {
+              const { owner, repo } = context.repo;
+              const release = await github.rest.repos.getReleaseByTag({
+                owner: owner,
+                repo: repo,
+                tag: process.env.tag_name
+              })
+              await github.rest.repos.deleteRelease({
+                owner,
+                repo,
+                release_id: release.data.id
+              })
+              await github.rest.git.deleteRef({
+                owner,
+                repo,
+                ref: `tags/${process.env.tag_name}`
+              })
+            } catch (err) {
+              core.error(`error deleting release or tag: ${err}`)
+            }
+
+      - name: create new nightly tag and release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.tag_name }}
+          release_name: ${{ env.release_name }}
+          draft: false
+          prerelease: true
+
+  upload-release-assets:
+    name: upload release
+    needs: [config, create-release]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: download artifact
+        uses: actions/download-artifact@v2.1.0
+        with:
+          name: ankicord.ankiaddon
+          path: ./ubuntu-latest
+
+      - name: upload release asset
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./ubuntu-latest/ankicord.ankiaddon
+          asset_name: ankicord.ankiaddon
+          asset_content_type: application/zip
