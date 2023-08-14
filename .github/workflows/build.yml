@@ -80,7 +80,7 @@ jobs:
 
   upload-release-assets:
     name: upload release
-    needs: [create-release]
+    needs: create-release
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
